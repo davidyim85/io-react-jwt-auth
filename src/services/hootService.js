@@ -1,7 +1,7 @@
 const BASE_URL = `${import.meta.env.VITE_EXPRESS_BACKEND_URL}/hoots`;
 
 
-const index = async () => {
+export const index = async () => {
     try {
         const res = await fetch(BASE_URL, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -12,4 +12,7 @@ const index = async () => {
     }
 }
 
-export { index }
+ 
+export const loggingMyname = () => {
+    console.log('david')
+}
