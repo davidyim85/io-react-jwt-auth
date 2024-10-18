@@ -7,8 +7,9 @@ import SignupForm from './components/SignupForm/SignupForm';
 import SigninForm from './components/SigninForm/SigninForm';
 import * as authService from '../src/services/authService'; // import the authservice
 import HootList from './components/HootList/HootList';
-import { loggingMyname, index } from './services/hootService';
- 
+import { index } from './services/hootService';
+import HootDetails from './components/HootDetails/HootDetails';
+
 export const AuthedUserContext = createContext(null);
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
       const fetchAllHoots = async () => {
         const hootsData = await index();
         console.log('hootsData: ', hootsData);
+        setHoots(hootsData);
       }
       if(user) fetchAllHoots();
   }, [user]); //
@@ -37,7 +39,8 @@ const App = () => {
           {user ? (
             <>
               <Route path="/" element={<Dashboard user={user} />} />
-              <Route path='/hoots' element={<HootList />} />
+              <Route path='/hoots' element={<HootList hoots={hoots}/>} />
+              <Route path='/hoots/:hootId' element={<HootDetails/>} />
             </>
           ) : (
             <Route path="/" element={<Landing />} />
