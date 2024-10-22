@@ -1,5 +1,5 @@
 import { useState, createContext, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import NavBar from './components/NavBar/NavBar';
 import Landing from './components/Landing/Landing';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -7,22 +7,23 @@ import SignupForm from './components/SignupForm/SignupForm';
 import SigninForm from './components/SigninForm/SigninForm';
 import * as authService from '../src/services/authService'; // import the authservice
 import HootList from './components/HootList/HootList';
-import { index } from './services/hootService';
+import { index, create } from './services/hootService';
 import HootDetails from './components/HootDetails/HootDetails';
+import HootForm from './components/HootForm/HootForm';
 
 export const AuthedUserContext = createContext(null);
 
 const App = () => {
   const [user, setUser] = useState(authService.getUser()); // using the method from authservice
   const [hoots, setHoots] = useState([]);
-
+  const navigate = useNavigate(); 
   useEffect(() => {
-      const fetchAllHoots = async () => {
-        const hootsData = await index();
-        console.log('hootsData: ', hootsData);
-        setHoots(hootsData);
-      }
-      if(user) fetchAllHoots();
+    const fetchAllHoots = async () => {
+      const hootsData = await index();
+      console.log('hootsData: ', hootsData);
+      setHoots(hootsData);
+    }
+    if (user) fetchAllHoots();
   }, [user]); //
 
 
@@ -30,6 +31,17 @@ const App = () => {
     authService.signout();
     setUser(null);
   };
+
+  const handleAddHoot = async (formData) => { //new
+    //we need something that does the creation of the hoot
+    const newHoot = await create(formData)
+    setHoots([ newHoot, ...hoots])
+
+    console.log(formData);
+    navigate('/hoots');
+  }
+
+
 
   return (
     <>
@@ -39,8 +51,9 @@ const App = () => {
           {user ? (
             <>
               <Route path="/" element={<Dashboard user={user} />} />
-              <Route path='/hoots' element={<HootList hoots={hoots}/>} />
-              <Route path='/hoots/:hootId' element={<HootDetails/>} />
+              <Route path='/hoots' element={<HootList hoots={hoots} />} />
+              <Route path='/hoots/new' element={<HootForm handleAddHoot={handleAddHoot}/>} /> {/**prop here */}
+              <Route path='/hoots/:hootId' element={<HootDetails />} />
             </>
           ) : (
             <Route path="/" element={<Landing />} />
