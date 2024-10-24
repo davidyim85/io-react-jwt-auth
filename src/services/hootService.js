@@ -61,3 +61,38 @@ export const createComment = async (hootId, commentFormData) => {
         console.log(error)
     }
 }
+
+
+
+//lets create a function that delete the hoot
+export const deleteHoot = async (hootId) => {
+    try{
+        const res = await fetch(`${BASE_URL}/${hootId}`,{
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        })
+    }catch(err) {
+        console.log(err)
+    }
+}
+
+//lets create a function that allows us to update the hoot
+export const update = async (hootId, hootFormData)=> {
+    try{
+        const res = await fetch(`${BASE_URL}/${hootId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(hootFormData)
+        })
+
+        return res.json();
+    }catch(err) {
+        console.log(err)
+    }
+}

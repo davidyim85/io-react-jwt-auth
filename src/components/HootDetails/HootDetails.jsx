@@ -1,12 +1,14 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { show, createComment } from "../../services/hootService";
 import CommentForm from '../CommentForm/CommentForm';
-
-const HootDetails = () => {
+import { AuthedUserContext } from "../../App";
+import { Link } from "react-router-dom";
+const HootDetails = (props) => {
     const { hootId } = useParams();
     const [hoot, setHoot] = useState(null);
-
+    const user = useContext(AuthedUserContext)
+    console.log(user)
     useEffect(() => {
         const fetchHoot = async () => {
             const hootData = await show(hootId);
@@ -24,7 +26,6 @@ const HootDetails = () => {
         const newComment = await createComment(hootId, commentFormData);
         setHoot({ ...hoot, comments: [...hoot.comments, newComment] });
     }
-
     return (
         <main>
             <header>
@@ -33,11 +34,22 @@ const HootDetails = () => {
                 <p>
                     {hoot.author.username} posted on {new Date(hoot.createdAt).toLocaleDateString()}
                 </p>
+
+                {/**If i wrote the hoot then i get to update and delete it */}
+                {   //check to see if i wrote the hoot
+                    hoot.author._id === user._id &&
+                    //if check passes, then the update and delete button appears
+                    <>
+                        <Link to={`/hoots/${hootId}/edit`}>Edit</Link>
+
+                        <button onClick={() => props.handleDeleteHoot(hootId)}> Delete</button>
+                    </>
+                }
             </header>
             <p>{hoot.text}</p>
             <section>
                 <h2>Comments</h2>
-                <CommentForm handleAddComment={handleAddComment}/>
+                <CommentForm handleAddComment={handleAddComment} />
                 {/* render text says no comments if there are no comments */}
                 {/* {hoot.comment.length === 0 && <p>There are no comments</p>} */}
                 {!hoot.comments.length && <p>There are no comments</p>}

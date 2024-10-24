@@ -1,6 +1,7 @@
 
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
+import { show } from '../../services/hootService';
 
 const HootForm = (props) => {
     const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ const HootForm = (props) => {
         text: "",
         category: "News",
     });
- 
+    const { hootId } = useParams();
 
     const handleChange = (evt) => {
         setFormData({
@@ -19,32 +20,47 @@ const HootForm = (props) => {
 
     const handleSubmit = (evt) => {
         evt.preventDefault();
-        props.handleAddHoot(formData)
 
+        if (hootId) {
+            props.handleUpdateHoot(hootId, formData);
+        } else {
+            props.handleAddHoot(formData);
+        }
     }
 
-    return(
+    useEffect(() => {
+        //fetches the hoot details for id and sets that data
+        const fetchHoot = async () => {
+            const hootData = await show(hootId)
+            setFormData(hootData);
+        }
+
+        if (hootId) fetchHoot();
+    }, [hootId])
+
+    return (
         <main>
             <form onSubmit={handleSubmit}>
+                <h1>{hootId ? 'Edit Hoot' : 'New Hoot'}</h1>
                 {/*Title input */}
                 <label htmlFor="title-input">Title</label>
-                <input 
+                <input
                     required
                     type="text"
                     name="title"
                     id="title-input"
                     value={formData.title} // some state key-value from the formdata object
-                    onChange={handleChange}                    
+                    onChange={handleChange}
                 />
                 {/*Text input */}
                 <label htmlFor="text-input">Text</label>
-                <input 
+                <input
                     required
                     type="text"
                     name="text"
                     id="text-input"
                     value={formData.text} // some state key-value from the formdata object
-                    onChange={handleChange}                    
+                    onChange={handleChange}
                 />
 
                 {/*Category selection*/}
@@ -54,7 +70,7 @@ const HootForm = (props) => {
                     id="category-input"
                     name="category"
                     value={formData.category}
-                    onChange={handleChange}     
+                    onChange={handleChange}
                 >
                     <option value="News">News</option>
                     <option value="Games">Games</option>

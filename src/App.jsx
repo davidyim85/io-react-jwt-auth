@@ -7,7 +7,7 @@ import SignupForm from './components/SignupForm/SignupForm';
 import SigninForm from './components/SigninForm/SigninForm';
 import * as authService from '../src/services/authService'; // import the authservice
 import HootList from './components/HootList/HootList';
-import { index, create } from './services/hootService';
+import { index, create, deleteHoot, update } from './services/hootService';
 import HootDetails from './components/HootDetails/HootDetails';
 import HootForm from './components/HootForm/HootForm';
 
@@ -41,7 +41,34 @@ const App = () => {
     navigate('/hoots');
   }
 
+  const handleDeleteHoot = async (hootId) =>{
+    console.log('hootId' ,hootId)
 
+    //we want to delete the hoot from the database BE
+    await deleteHoot(hootId)
+    //we want to remove the hoot from the /hoot page FE
+    setHoots(hoots.filter((hoot) => { return (
+      hoot._id !== hootId
+    )}))
+
+    //we want to navigate to the /hoot page FE
+    navigate('/hoots');
+  }
+
+  const handleUpdateHoot = async (hootId, hootFormData) => {
+        //we want to update the hoot from the database BE
+        const updatedHoot = await update(hootId, hootFormData)
+        
+        //we want to update the hoot from the /hoot page FE
+ console.log(updatedHoot)
+        setHoots(hoots.map((hoot) => {
+          return (  hootId === hoot._id ? updatedHoot : hoot )
+        }))
+        //we want to navigate to the /hoot page FE
+        navigate('/hoots');
+  }
+
+console.log(hoots)
 
   return (
     <>
@@ -53,7 +80,8 @@ const App = () => {
               <Route path="/" element={<Dashboard user={user} />} />
               <Route path='/hoots' element={<HootList hoots={hoots} />} />
               <Route path='/hoots/new' element={<HootForm handleAddHoot={handleAddHoot}/>} /> {/**prop here */}
-              <Route path='/hoots/:hootId' element={<HootDetails />} />
+              <Route path="/hoots/:hootId/edit" element={<HootForm handleUpdateHoot={handleUpdateHoot}/>} />
+              <Route path='/hoots/:hootId' element={<HootDetails handleDeleteHoot={handleDeleteHoot}/>} />
             </>
           ) : (
             <Route path="/" element={<Landing />} />
